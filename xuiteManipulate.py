@@ -21,6 +21,7 @@ global TARGET_PASSWORD, TARGET_VIDEO_URL
 global PASSWD
 global PARSE_STATEI,PASRSE_STATEII, PARSE_STATEIII
 global fileTitle
+global outputPath
 
 fileTitle = 'none'
 DB_FLT, DB_NOR, DB_ARG, DB_VER    = range(4)
@@ -98,7 +99,7 @@ def prepareCurlPara(url,outputName):
    iOutput.append('-L')
    iOutput.append(url)
    iOutput.append('-o')
-   iOutput.append(outputName)
+   iOutput.append(outputPath+'/'+outputName)
    return iOutput
 
 def jsonExtractor(tPage):
@@ -193,9 +194,9 @@ def assignPageAndOverrideArgu():
    DB(DB_ARG,'LEAVE overrideArgu')
 
 def loadArgumentDb():
-   DB(DB_ARG,'ENTER loadArgumentDb')
-   if os.path.isfile('./argumentDataBase') is True:
-      f = open('argumentDataBase','r')
+   DB(1,'ENTER loadArgumentDb')
+   if os.path.isfile('./.argumentDataBase') is True:
+      f = open('.argumentDataBase','r')
       if f is not None:
          for line in f :
             if line != '\n' and line[0] != '#':
@@ -204,8 +205,15 @@ def loadArgumentDb():
                ARGUDB.append(line)
          f.close()
    else:
-      DB(DB_ARG,'override file is not exist')
-   DB(DB_ARG,'LEAVE loadArgumentDb')
+      DB(1,'override file is not exist')
+   DB(1,'LEAVE loadArgumentDb')
+
+def isInsideDownloadedList(filename):
+   for entry in ARGUDB :
+      print entry
+      if entry == filename :
+         return True
+   return False
 
 def main():
    #sourcePage = xuiteParser(tPage,PARSE_STATEI)
@@ -221,30 +229,44 @@ def main():
       f.write('xuiteErr:'+tPage+" "+PASSWD+"\n")
       f.close()
    #print 'why stop?'
-   process = Popen(prepareCurlPara(finalTarget,title))
-   process.wait()
+   if isInsideDownloadedList(title) == False :
+      print 'new one, go downloading...'
+      process = Popen(prepareCurlPara(finalTarget,title))
+      process.wait()
+      f = open('.argumentDataBase','a')
+      f.write(title+"\n")
+      f.close()
+   else :
+      print 'old one, skip'
 
 def verify():
    global DB_FLT
    global PASSWD
    global fileTitle
-   if len(sys.argv) < 4 or len(sys.argv) > 5 :
+   global outputPath
+   outputPath = ''
+   if len(sys.argv) < 5 or len(sys.argv) > 6 :
       print "command format is: "
-      print sys.argv[0]+" <PAGE> <PASSWD> <DB>"
+      print sys.argv[0]+" <PAGE> <PASSWD> <fileTitle> <OUTPUTPATH> <DB>"
       print "--"
       print "You need to input <PAGE>"
       print "PASSWD is option"      
       exit()
-   if len(sys.argv) == 5 :      
-      DB_FLT = int(sys.argv[4])
+   if len(sys.argv) == 6 :      
+      DB_FLT = int(sys.argv[5])
       PASSWD = sys.argv[2]
       fileTitle = sys.argv[3]
-   elif len(sys.argv) == 4:         
-      DB_FLT = int(sys.argv[3])
+      outputPath = sys.argv[4]
+   elif len(sys.argv) == 5:         
+      DB_FLT = int(sys.argv[4])
       fileTitle = sys.argv[2]
+      outputPath = sys.argv[3]
+   print "DB_FLT:"+str(DB_FLT)
+   print "fileTitle:"+fileTitle
+   print "outputPath:"+outputPath
 
 if __name__ == '__main__':
    verify()
-   #loadArgumentDb()
+   loadArgumentDb()
    assignPageAndOverrideArgu()
    main()

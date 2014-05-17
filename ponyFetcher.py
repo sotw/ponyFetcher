@@ -20,6 +20,7 @@ global tPage
 global TARGET_PASSWORD, TARGET_VIDEO_URL
 global password
 global TITLE
+global outputPath
 
 DB_FLT, DB_NOR, DB_ARG, DB_VER    = range(4)
 TYPE_P, TYPE_H, TYPE_LI, TYPE_PRE = range(4)
@@ -28,6 +29,7 @@ ARGUDB        = []
 ARGUDB_IDX_T, ARGUDB_IDX_P, ARGUDB_IDX_H, ARGUDB_IDX_LI = range(4)
 tPage         = ''
 password = []
+outputPath = ''
 
 def DB(level,msg):
    if int(level) == int(DB_FLT) :
@@ -212,13 +214,14 @@ def loadArgumentDb():
       DB(DB_ARG,'override file is not exist')
    DB(DB_ARG,'LEAVE loadArgumentDb')
 
-def prepareXuite(mPage,PASSWORD,TITLE):
+def prepareXuite(mPage,PASSWORD,TITLE,outputPath):
    iOut =[]
    iOut.append('python')
    iOut.append('xuiteManipulate.py')
    iOut.append(mPage)
    iOut.append(PASSWORD)
    iOut.append(TITLE)
+   iOut.append(outputPath)
    iOut.append('0')
    return iOut
 
@@ -238,8 +241,8 @@ def main():
       f.close()
 
    for aPage in sourcePageList:
-      print aPage+":"+password[cnt]
-      process = Popen(prepareXuite(aPage,password[cnt],TITLE))
+      print aPage+":"+password[cnt]+":"+outputPath
+      process = Popen(prepareXuite(aPage,password[cnt],TITLE,outputPath))
       process.wait()
       cnt+=1
    print "===== END OUTPUT ====="
@@ -252,16 +255,20 @@ def main():
    #print f.read()
 
 def verify():
-   if len(sys.argv) < 2 or len(sys.argv) > 3 :
+   global outputPath
+   if len(sys.argv) < 3 or len(sys.argv) > 4 :
       print "command format is: "
-      print sys.argv[0]+" <PAGE> <DB>"
+      print sys.argv[0]+" <PAGE> <outputPath> <DB>"
       print "--"
-      print "you need to input <PAGE>"
+      print "you need to input <PAGE> <outputPath>"
       print "DB is option"      
       exit()
-   if len(sys.argv) == 3 :
+   if len(sys.argv) == 4 :
       global DB_FLT
-      DB_FLT = int(sys.argv[2])
+      DB_FLT = int(sys.argv[3])
+      outputPath = sys.argv[2]
+   print "DB_FLT:"+str(DB_FLT)
+   print "outputPath:"+outputPath
 
 if __name__ == '__main__':
    verify()

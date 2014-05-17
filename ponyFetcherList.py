@@ -18,7 +18,9 @@ global TARGET_PASSWORD, TARGET_VIDEO_URL
 global password
 global doIt
 global newerPage
+global outputPath
 
+oututPath = ''
 doIt = 1
 newerPage = ''
 DB_FLT, DB_NOR, DB_ARG, DB_VER    = range(4)
@@ -158,11 +160,12 @@ def loadArgumentDb():
       DB(DB_ARG,'override file is not exist')
    DB(DB_ARG,'LEAVE loadArgumentDb')
 
-def prepareSinglePony(page):
+def prepareSinglePony(page,outputPath):
    iOut =[]
    iOut.append('python')
    iOut.append('ponyFetcher.py')
    iOut.append(page)
+   iOut.append(outputPath)
    iOut.append('0')
    return iOut
 
@@ -171,7 +174,7 @@ def main():
       myList = blogspotParser(newerPage)
       for e in myList:
          print e
-         process = Popen(prepareSinglePony(e[1]))
+         process = Popen(prepareSinglePony(e[1],outputPath))
          process.wait()
          #raw_input()
 
@@ -183,16 +186,19 @@ def main():
    #print f.read()
 
 def verify():
-   if len(sys.argv) < 2 or len(sys.argv) > 3 :
+   if len(sys.argv) < 3 or len(sys.argv) > 4 :
       print "command format is: "
-      print sys.argv[0]+" <ANIMA_NAME> <DB>"
+      print sys.argv[0]+" <ANIMA_NAME> <outputPath> <DB>"
       print "--"
-      print "you need to input <ANIMANNAME>"
+      print "you need to input <ANIMANNAME> <outputPath>"
+      print "ANIMANAME now is provided by perform0.sh"
       print "DB is option"      
       exit()
-   if len(sys.argv) == 3 :
+   if len(sys.argv) == 4 :
       global DB_FLT
-      DB_FLT = int(sys.argv[2])
+      global outputPath
+      DB_FLT = int(sys.argv[3])
+      outputPath = sys.argv[2]
 
 if __name__ == '__main__':
    verify()
