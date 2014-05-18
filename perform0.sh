@@ -9,7 +9,7 @@ python ponyFetcherList.py "http://hdx3.blogspot.com/search/label/My%20Little%20P
 mkdir -p RickAndMorty
 python ponyFetcherList.py "http://hdx3.blogspot.com/search/label/Rick%20and%20Morty?max-results=200" RickAndMorty 0
 mkdir -p DanVs
-python ponyFetcherList.py "http://hdx3.blogspot.com/search/label/Rick%20and%20Morty?max-results=200" DanVs 0
+python ponyFetcherList.py "http://hdx3.blogspot.com/search/label/Dab%20Vs.?max-results=200" DanVs 0
 mkdir -p UglyAmericans
 python ponyFetcherList.py "http://hdx3.blogspot.com/search/label/Ugly%20Americans?max-results=200" UglyAmericans 0
 mkdir -p Metalocalypse
