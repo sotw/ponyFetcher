@@ -53,7 +53,7 @@ def parseByLine(text):
 def targetMatch(iList,TARGET):
    DB(1,'targetMatching...')
    target = []
-   
+   doAgain = 0
    if TARGET == TARGET_PASSWORD:
       for e in iList:      
          if e.text is not None:                        
@@ -61,14 +61,25 @@ def targetMatch(iList,TARGET):
             target = parseByLine(e.text)
    elif TARGET == TARGET_VIDEO_URL:
       for e in iList:
-         if e.text is not None:
+         if e.text is not None:            
             if e.get('href') is not None:
                DB(1,e.get('href'))
+               doAgain = 0
                try:
                   e.get('href').index('http://hdx3.blogspot.tw')
                   target.append([e.text,e.get('href')])
                except ValueError:
-                  DB(1,"I am not interesting in this url")
+                  DB(1,"I am not interesting in this url..try another one")                  
+                  doAgain = 1
+            if doAgain == 1 :
+               if e.get('href') is not None:
+                  try:
+                     e.get('href').index('http://hornydragon.blogspot.tw')
+                     target.append([e.text,e.get('href')])
+                  except ValueError:
+                     DB(1, "still can't find interesting stuff")
+                  
+               
    return target
 
 def handler_list(iList):      
