@@ -210,7 +210,7 @@ def loadArgumentDb():
 
 def isInsideDownloadedList(filename):
    for entry in ARGUDB :
-      print entry
+      DB(1. entry)
       if entry == filename :
          return True
    return False

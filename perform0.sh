@@ -14,3 +14,5 @@ mkdir -p UglyAmericans
 python ponyFetcherList.py "http://hdx3.blogspot.com/search/label/Ugly%20Americans?max-results=200" UglyAmericans 0
 mkdir -p Metalocalypse
 python ponyFetcherList.py "http://hdx3.blogspot.com/search/label/Metalocalypse?max-results=200" Metalocalypse 0
+mkdir -p AVGN
+python ponyFetcherList.py "http://hornydragon.blogspot.com/search/label/AVGN?max-results=200" AVGN 0
