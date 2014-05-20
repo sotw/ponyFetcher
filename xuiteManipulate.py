@@ -104,7 +104,7 @@ def prepareCurlPara(url,outputName):
 
 def jsonExtractor(tPage):
    DB(1,'tPage='+tPage)
-   ret = ['none','none']
+   ret = ['none','none','none']
    #resp = urllib2.urlopen(tPage)
    #if resp.code == 200 :
    #   data = resp.read()
@@ -128,14 +128,17 @@ def jsonExtractor(tPage):
             DB(1, mEntry+":true")
          else:
             DB(1, mEntry+":false")
-   
 
    location = 'none'
+   thumbnailUrl = 'none'
    global fileTitle 
    if paraBag['media']['html5HQUrl'] != '':
       location = paraBag['media']['html5HQUrl']
    elif paraBag['media']['html5Url'] != '':
       location = paraBag['media']['html5Url']
+
+   if paraBag['media']['thumbnailUrl'] != '':
+   	   thumbnailUrl = paraBag['media']['thumbnailUrl']
 
    if fileTitle != 'none':
       fileTitle = fileTitle.replace(' ','')
@@ -151,7 +154,7 @@ def jsonExtractor(tPage):
    #[]== orz.. I hate string encode coversion
    #print wholeFileName
    #wholeFileName = wholeFileName.encode('UTF-8')
-   return [location, wholeFileName]
+   return [location, wholeFileName,thumbnailUrl]
 
 def xuiteParser(tPage, PARSE_STATE): 
    DB(1,'tPage='+tPage)
@@ -221,9 +224,14 @@ def main():
    mId = xuiteParser(tPage, PARSE_STATEII)
    print mId
    finalTarget = ''
-   finalTarget,title = jsonExtractor('http://vlog.xuite.net/_ajax/default/media/ajax?act=checkPasswd&mediumId='+mId+'&passwd='+PASSWD)
+   title = ''
+   thumbnailUrl = ''
+   finalTarget,title,thumbnailUrl = jsonExtractor('http://vlog.xuite.net/_ajax/default/media/ajax?act=checkPasswd&mediumId='+mId+'&passwd='+PASSWD)
    print title
    print finalTarget
+   addPrefixThumb = 'http://vlog.xuite.net'+thumbnailUrl
+   print addPrefixThumb
+   thumbTitle = title.split('.')[0]+".jpg"
    if finalTarget == '':
       f = open('errorReport.txt','a')
       f.write('xuiteErr:'+tPage+" "+PASSWD+"\n")
@@ -238,6 +246,13 @@ def main():
       f.close()
    else :
       print 'old one, skip'
+   if isInsideDownloadedList(thumbTitle) == False :
+   	   print 'new thumb, go downloading...'
+   	   process = Popen(prepareCurlPara(addPrefixThumb,thumbTitle))
+   	   process.wait()
+   	   f = open('.argumentDataBase','a')
+   	   f.write(thumbTitle+"\n")
+   	   f.close()
 
 def verify():
    global DB_FLT
