@@ -60,7 +60,7 @@ def parseByRe2(text):
       DB(1,"========")
       ret.append(e[0])
    if len(resultList) == 0:
-       resultList=re.findall('marginheight="0" src="([^"]+)" width=',text)
+      resultList=re.findall('marginheight="0" src="([^"]+)" width=',text)
       for e in resultList:
          DB(1,"********")
          e = e.split('?')
