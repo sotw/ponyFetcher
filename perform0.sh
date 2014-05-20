@@ -44,7 +44,7 @@ if [ -x /usr/syno/bin/synoindex ]; then
    /usr/syno/bin/synoindex -R $PWD/AVGN 
 fi
 mkdir -p SuperJail
-python ponyFetcherList.py "http://hdx3.blogspot.com/search/label/Superjail?max-results=200" Superjail 0
+python ponyFetcherList.py "http://hdx3.blogspot.com/search/label/Superjail?max-results=200" SuperJail 0
 if [ -x /usr/syno/bin/synoindex ]; then 
    /usr/syno/bin/synoindex -R $PWD/Superjail 
 fi
