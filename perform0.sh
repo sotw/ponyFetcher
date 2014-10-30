@@ -1,3 +1,21 @@
+synoindexPath='/usr/syno/bin/synoindex'
+pythonPath='python'
+
+function synoindex_update
+{
+	if [ -x $synoindexPath ]; then
+		$synoindexPath -R $PWD/$1
+	fi
+}
+
+function travelNode
+{
+	mkdir -p $1
+	if [ -x $pythonPath ]; then
+		$pythonPath ponyFetcherList.py $2 $1 0
+	fi
+}
+
 mkdir -p BraveWarrior
 python ponyFetcherList.py "http://hdx3.blogspot.com/search/label/Bravest%20Warriors?max-results=200" BraveWarrior 0
 if [ -x /usr/syno/bin/synoindex ]; then 
