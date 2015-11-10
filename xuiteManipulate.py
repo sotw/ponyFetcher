@@ -41,7 +41,7 @@ def parseByLine(text):
    lines = text.split('\n')
    for line in lines:
       if len(line) > 1:
-         #print '#'+line                  
+         #print '#'+line
          #print repr(line)
          eAry = line.split(u'\uff1a');
          #print len(eAry)
@@ -68,14 +68,14 @@ def targetMatch(iList,TARGET):
                #print line
                iEntrys = line.split(' ')
                #print len(iEntrys)
-               if len(iEntrys) >= 4:                  
+               if len(iEntrys) >= 4:
                   if iEntrys[1] == 'srcUrl':
                      target = iEntrys[3]
                      target = target.rstrip(';\r')
                      print repr(target)
    return target
 
-def handler_passI(iList):      
+def handler_passI(iList):
    DB(1,'ENTER handler_passI')
    ret = 0
    cnt = len(iList)
@@ -102,20 +102,12 @@ def prepareCurlPara(url,outputName):
    iOutput.append(outputPath+'/'+outputName)
    return iOutput
 
-def jsonExtractor(tPage):
+def jsonExtractor(tPage,mId,passwdwd):
    DB(1,'tPage='+tPage)
    ret = ['none','none','none']
-   #resp = urllib2.urlopen(tPage)
-   #if resp.code == 200 :
-   #   data = resp.read()
-   #   resp.close()
-   #elif resp.code == 404 :
-   #   print "page do not exist"
-   #   exit()
-   #else :
-   #   print "can not open page"
-   #   exit()
-   req = urllib2.Request(tPage, None)
+   value = {'act':'checkPasswd','mediumId':mId,'passwd':passwdwd}
+   data = urllib.urlencode(value)
+   req = urllib2.Request(tPage, data)
    opener = urllib2.build_opener()
    f = opener.open(req)
    paraBag = json.load(f)
@@ -131,7 +123,7 @@ def jsonExtractor(tPage):
 
    location = 'none'
    thumbnailUrl = 'none'
-   global fileTitle 
+   global fileTitle
    if paraBag['media']['html5HQUrl'] != '':
       location = paraBag['media']['html5HQUrl']
    elif paraBag['media']['html5Url'] != '':
@@ -148,15 +140,15 @@ def jsonExtractor(tPage):
    elif paraBag['media']['TITLE'] != None:
       print paraBag['media']['TITLE']
       fileTitle = paraBag['media']['TITLE']
-   
+
    #wholeFileName = fileTitle+"."+paraBag['media']['SRC_TYPE'].encode("UTF-8")
-   wholeFileName = paraBag['media']['TITLE']+".mp4"
+   wholeFileName = fileTitle+".mp4"
    #[]== orz.. I hate string encode coversion
    #print wholeFileName
    #wholeFileName = wholeFileName.encode('UTF-8')
    return [location, wholeFileName,thumbnailUrl]
 
-def xuiteParser(tPage, PARSE_STATE): 
+def xuiteParser(tPage, PARSE_STATE):
    DB(1,'tPage='+tPage)
    resp = urllib2.urlopen(tPage)
    if resp.code == 200 :
@@ -174,8 +166,8 @@ def xuiteParser(tPage, PARSE_STATE):
    #etree.strip_tags(tree,'strong')
    #etree.strip_tags(tree,'img')
    #etree.strip_tags(tree,'span')
-   #etree.strip_tags(tree,'code')   
-   
+   #etree.strip_tags(tree,'code')
+
    #result = etree.tostring(tree.getroot(), pretty_print=True, method="html")
    #DB(1, result)
    #DB(DB_VER, result)
@@ -183,7 +175,7 @@ def xuiteParser(tPage, PARSE_STATE):
    targetURL = ""
    if(PARSE_STATE == PARSE_STATEI):
       myList = tree.xpath("//div[@id='single-video']/script")
-      ret=handler_passI(myList) 
+      ret=handler_passI(myList)
    elif(PARSE_STATE == PARSE_STATEII):
       myList = tree.xpath("//div[@id='play-hiddendata']")
       ret=handler_passII(myList)
@@ -226,7 +218,7 @@ def main():
    finalTarget = ''
    title = ''
    thumbnailUrl = ''
-   finalTarget,title,thumbnailUrl = jsonExtractor('http://vlog.xuite.net/_ajax/default/media/ajax?act=checkPasswd&mediumId='+mId+'&passwd='+PASSWD)
+   finalTarget,title,thumbnailUrl = jsonExtractor('http://vlog.xuite.net/_ajax/default/media/ajax',mId,PASSWD)
    print title
    print finalTarget
    addPrefixThumb = 'http://vlog.xuite.net'+thumbnailUrl
@@ -236,7 +228,6 @@ def main():
       f = open('errorReport.txt','a')
       f.write('xuiteErr:'+tPage+" "+PASSWD+"\n")
       f.close()
-   #print 'why stop?'
    if isInsideDownloadedList(title) == False :
       print 'new one, go downloading...'
       process = Popen(prepareCurlPara(finalTarget,title))
@@ -265,14 +256,14 @@ def verify():
       print sys.argv[0]+" <PAGE> <PASSWD> <fileTitle> <OUTPUTPATH> <DB>"
       print "--"
       print "You need to input <PAGE>"
-      print "PASSWD is option"      
+      print "PASSWD is option"
       exit()
-   if len(sys.argv) == 6 :      
+   if len(sys.argv) == 6 :
       DB_FLT = int(sys.argv[5])
       PASSWD = sys.argv[2]
       fileTitle = sys.argv[3]
       outputPath = sys.argv[4]
-   elif len(sys.argv) == 5:         
+   elif len(sys.argv) == 5:
       DB_FLT = int(sys.argv[4])
       fileTitle = sys.argv[2]
       outputPath = sys.argv[3]
