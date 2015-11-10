@@ -124,99 +124,78 @@ def handler_password(iList):
    DB(1, 'LEAVE handler_password')
    return ret
 
-def iUrlOpen(tPage)
-	ret = 0
-	resp = 0
-	DB(1, 'tPage='+tPage)
-	try:
-		resp = url.urlllib2.urlopen(tPage)
-	except urllib2.HTTPError, err:
-		if err.code == 404:
-			print "404, page do not exist"
-			ret = 404
-		if err.code == 403:
-			print "403, Access denied!"
-			ret = 403
-		else
-			printf "Something happened! err="+err.code
-	except urllib2.URLError err:
-		print "Some error happened:"+err.reason
-		ret = 999
-	return ret
-
 def blogspotParser(tPage):
-	ret = []
+    ret = []
 
-	DB(1,'tPage='+tPage)
-	try:
-   	   resp = urllib2.urlopen(tPage)
-	except urllib2.HTTPError, err:
-	  if err.code == 404 :
-  	  print "page do not exist"
-  	  exit()
-	else :
-  	  print "can not open page"
-  	  exit()
+    DB(1,'tPage='+tPage)
+    try:
+       resp = urllib2.urlopen(tPage)
+    except urllib2.HTTPError, err:
+      if err.code == 404 :
+          print "page do not exist"
+          exit()
+    else :
+      print "can not open page "
+      exit()
 
-  	if resp.code == 200 :
-  		data = resp.read()
-  		resp.close()
+    if resp.code == 200 :
+        data = resp.read()
+        resp.close()
+    parser = etree.HTMLParser()
+    tree = etree.parse(StringIO(data), parser)
+    #etree.strip_tags(tree,'br')
+    #etree.strip_tags(tree,'strong')
+    #etree.strip_tags(tree,'img')
+    etree.strip_tags(tree,'span')
+    #etree.strip_tags(tree,'iframe')
+    #etree.strip_tags(tree,'code')
 
-   parser = etree.HTMLParser()
-   tree = etree.parse(StringIO(data), parser)
-   #etree.strip_tags(tree,'br')
-   #etree.strip_tags(tree,'strong')
-   #etree.strip_tags(tree,'img')
-   etree.strip_tags(tree,'span')
-   #etree.strip_tags(tree,'iframe')
-   #etree.strip_tags(tree,'code')
+    result = etree.tostring(tree.getroot(), pretty_print=True, method="html")
+    #DB(1, result)
+    #DB(DB_VER, result)
+    passwordList = parseByRe(result)
+    videoPage = parseByRe2(result)
+    targetURL = ""
+    lineSum = 0
+    #myList = tree.xpath("//h3[@class='post-title entry-title']") #title
+    for iranai in tree.xpath("//div[@class='separator']"):
+        DB(1, 'remove 1 separator!')
+        iranai.getparent().remove(iranai)
+    for iranai in tree.xpath("//div[@class='sitemajiad']"):
+        DB(1, 'remove 1 stemajiad!')
+        iranai.getparent().remove(iranai)
+    for iranai in tree.xpath("//a[@name='more']"):
+        DB(1, 'remote 1 a more!')
+        iranai.getparent().remove(iranai)
+    for iranai in tree.xpath("//iframe"):
+        DB(1, 'remote 1 iframe!')
+        iranai.getparent().remove(iranai)
+    for iranai in tree.xpath("//div[@class='post-body entry-content']/div"):
+        DB(1, 'remote 1 div!')
+        iranai.getparent().remove(iranai)
+    etree.strip_tags(tree,'br')
+    myList = tree.xpath("//div[@class='post-body entry-content']")
+    global password
+    #passwordList = handler_password(myList)
+    for pas in passwordList:
+        print "Got password:"+pas
+        password.append(pas)
+    #if password == 'none':
+    #   print etree.tostring(tree.getroot(), pretty_print=True, method="html")
 
-   result = etree.tostring(tree.getroot(), pretty_print=True, method="html")
-   #DB(1, result)
-   #DB(DB_VER, result)
-   passwordList = parseByRe(result)
-   videoPage = parseByRe2(result)
-   targetURL = ""
-   lineSum = 0
-   #myList = tree.xpath("//h3[@class='post-title entry-title']") #title
-   for iranai in tree.xpath("//div[@class='separator']"):
-      DB(1, 'remove 1 separator!')
-      iranai.getparent().remove(iranai)
-   for iranai in tree.xpath("//div[@class='sitemajiad']"):
-      DB(1, 'remove 1 stemajiad!')
-      iranai.getparent().remove(iranai)
-   for iranai in tree.xpath("//a[@name='more']"):
-      DB(1, 'remote 1 a more!')
-      iranai.getparent().remove(iranai)
-   for iranai in tree.xpath("//iframe"):
-      DB(1, 'remote 1 iframe!')
-      iranai.getparent().remove(iranai)
-   for iranai in tree.xpath("//div[@class='post-body entry-content']/div"):
-      DB(1, 'remote 1 div!')
-      iranai.getparent().remove(iranai)
-   etree.strip_tags(tree,'br')
-   myList = tree.xpath("//div[@class='post-body entry-content']")
-   global password
-   #passwordList = handler_password(myList)
-   for pas in passwordList:
-     print "Got password:"+pas
-     password.append(pas)
-   #if password == 'none':
-   #   print etree.tostring(tree.getroot(), pretty_print=True, method="html")
-
-   #aHrefList = tree.xpath("//div[@class='post-body entry-content']//a")
-   global TITLE
-   TITLE = 'none'
-   TITLE = tree.xpath("//title")[0].text
-   #handler_video(aHrefList)
-   #videoPage = handler_video(aHrefList)
-   for aPage in videoPage:
-      DB(1,"Got video http url:(%s)" %(aPage))
-      aPage = aPage.replace('embed','play',1)
-      aPage = aPage+"?html5=1" #enable html5
-      DB(1,"enable html5:(%s)"%(aPage))
-      ret.append(aPage)
-   return ret
+    #aHrefList = tree.xpath("//div[@class='post-body entry-content']//a")
+    global TITLE
+    TITLE = 'none'
+    TITLE = tree.xpath("//title")[0].text
+    #handler_video(aHrefList)
+    #videoPage = handler_video(aHrefList)
+    for aPage in videoPage:
+        DB(1,"Got video http url:(%s)" %(aPage))
+        aPage = aPage.replace('embed','play',1)
+        aPage = aPage+"?html5=1" #enable html5
+        DB(1,"enable html5:(%s)"%(aPage))
+        ret.append(aPage)
+    return ret
 
 def assignPageAndOverrideArgu():
    DB(DB_ARG,'ENTER overrideArgu')
