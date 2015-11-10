@@ -39,7 +39,7 @@ def parseByLine(text):
    for line in lines:
       print "LINE:"+line
       if len(line) > 1:
-         #print '#'+line
+         #print '#'+line                  
          #print repr(line)
          eAry = line.split(u'\uff1a');
          #print len(eAry)
@@ -55,13 +55,13 @@ def targetMatch(iList,TARGET):
    target = []
    doAgain = 0
    if TARGET == TARGET_PASSWORD:
-      for e in iList:
-         if e.text is not None:
+      for e in iList:      
+         if e.text is not None:                        
             #DB(1,e.text)
             target = parseByLine(e.text)
    elif TARGET == TARGET_VIDEO_URL:
       for e in iList:
-         if e.text is not None:
+         if e.text is not None:            
             if e.get('href') is not None:
                DB(1,e.get('href'))
                doAgain = 0
@@ -69,7 +69,7 @@ def targetMatch(iList,TARGET):
                   e.get('href').index('http://hdx3.blogspot.tw')
                   target.append([e.text,e.get('href')])
                except ValueError:
-                  DB(1,"I am not interesting in this url..try another one")
+                  DB(1,"I am not interesting in this url..try another one")                  
                   doAgain = 1
             if doAgain == 1 :
                if e.get('href') is not None:
@@ -78,11 +78,11 @@ def targetMatch(iList,TARGET):
                      target.append([e.text,e.get('href')])
                   except ValueError:
                      DB(1, "still can't find interesting stuff")
-
-
+                  
+               
    return target
 
-def handler_list(iList):
+def handler_list(iList):      
    DB(1,'ENTER handler_video')
    cnt = len(iList)
    DB(1, 'There are '+str(cnt)+' interesting stuff found')
@@ -93,7 +93,7 @@ def handler_list(iList):
    DB(1, 'LEAVE handler_video')
    return ret
 
-def handler_password(iList):
+def handler_password(iList):      
    DB(1,'ENTER handler_password')
    cnt = len(iList)
    DB(1, 'There are '+str(cnt)+' interesting stuff found')
@@ -120,21 +120,21 @@ def blogspotParser(tPage):
    #etree.strip_tags(tree,'strong')
    #etree.strip_tags(tree,'img')
    etree.strip_tags(tree,'span')
-   #etree.strip_tags(tree,'code')
-
+   #etree.strip_tags(tree,'code')   
+   
    #result = etree.tostring(tree.getroot(), pretty_print=True, method="html")
    #DB(1, result)
    #DB(DB_VER, result)
 
    targetURL = ""
-   lineSum = 0
+   lineSum = 0   
    #myList = tree.xpath("//h3[@class='post-title entry-title']") #title
    for iranai in tree.xpath("//div[@class='separator']"):
       #print '1 remove separator!'
       iranai.getparent().remove(iranai)
    etree.strip_tags(tree,'br')
    myList = tree.xpath("//div[@class='blog-posts hfeed']//a")
-   ret = handler_list(myList)
+   ret = handler_list(myList)   
    myList2 = tree.xpath("//a[@class='blog-pager-newer-link']")
    global doIt
    global newerPage
@@ -145,8 +145,8 @@ def blogspotParser(tPage):
             print e.get('href')
             newerPage = e.get('href')
    else :
-      doIt = 0
-
+      doIt = 0 
+   
    return ret
 
 def assignPageAndOverrideArgu():
@@ -177,7 +177,7 @@ def prepareSinglePony(page,outputPath):
    iOut.append('ponyFetcher.py')
    iOut.append(page)
    iOut.append(outputPath)
-   iOut.append('1')
+   iOut.append('0')
    return iOut
 
 def main():
@@ -203,7 +203,7 @@ def verify():
       print "--"
       print "you need to input <ANIMANNAME> <outputPath>"
       print "ANIMANAME now is provided by perform0.sh"
-      print "DB is option"
+      print "DB is option"      
       exit()
    if len(sys.argv) == 4 :
       global DB_FLT

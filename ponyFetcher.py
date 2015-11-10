@@ -76,7 +76,7 @@ def parseByLine(text):
    for line in lines:
       DB(1,"LINE:"+line)
       if len(line) > 1:
-         #print '#'+line
+         #print '#'+line                  
          #print repr(line)
          eAry = line.split(u'\uff1a')
          #print len(eAry)
@@ -90,10 +90,10 @@ def parseByLine(text):
 def targetMatch(iList,TARGET):
    DB(1,'targetMatching...')
    target=[]
-
+   
    if TARGET == TARGET_PASSWORD:
-      for e in iList:
-         if e.text is not None:
+      for e in iList:      
+         if e.text is not None:                        
             DB(1,e.text)
             #target = parseByLine(e.text)
             target = parseByRe(e.text)
@@ -108,7 +108,7 @@ def targetMatch(iList,TARGET):
                DB(1,"I am not interesting in this url")
    return target
 
-def handler_video(iList):
+def handler_video(iList):      
    DB(1,'ENTER handler_video')
    cnt = len(iList)
    DB(1, 'There are '+str(cnt)+' interesting stuff found')
@@ -116,7 +116,7 @@ def handler_video(iList):
    DB(1, 'LEAVE handler_video')
    return ret
 
-def handler_password(iList):
+def handler_password(iList):      
    DB(1,'ENTER handler_password')
    cnt = len(iList)
    DB(1, 'There are '+str(cnt)+' interesting stuff found')
@@ -125,77 +125,74 @@ def handler_password(iList):
    return ret
 
 def blogspotParser(tPage):
-    ret = []
-
-    DB(1,'tPage='+tPage)
-    try:
-       resp = urllib2.urlopen(tPage)
-    except urllib2.HTTPError, err:
-      if err.code == 404 :
-          print "page do not exist"
-          exit()
-    else :
-      print "can not open page "
+   ret = []
+   DB(1,'tPage='+tPage)
+   resp = urllib2.urlopen(tPage)
+   if resp.code == 200 :
+      data = resp.read()
+      resp.close()
+   elif resp.code == 404 :
+      print "page do not exist"
       exit()
+   else :
+      print "can not open page"
+      exit()
+   
+   parser = etree.HTMLParser()
+   tree = etree.parse(StringIO(data), parser)
+   #etree.strip_tags(tree,'br')
+   #etree.strip_tags(tree,'strong')
+   #etree.strip_tags(tree,'img')
+   etree.strip_tags(tree,'span')
+   #etree.strip_tags(tree,'iframe')
+   #etree.strip_tags(tree,'code')   
+   
+   result = etree.tostring(tree.getroot(), pretty_print=True, method="html")
+   #DB(1, result)
+   #DB(DB_VER, result)
+   passwordList = parseByRe(result)
+   videoPage = parseByRe2(result)
+   targetURL = ""
+   lineSum = 0   
+   #myList = tree.xpath("//h3[@class='post-title entry-title']") #title
+   for iranai in tree.xpath("//div[@class='separator']"):
+      DB(1, 'remove 1 separator!')
+      iranai.getparent().remove(iranai)
+   for iranai in tree.xpath("//div[@class='sitemajiad']"):
+      DB(1, 'remove 1 stemajiad!')
+      iranai.getparent().remove(iranai)
+   for iranai in tree.xpath("//a[@name='more']"):
+      DB(1, 'remote 1 a more!')
+      iranai.getparent().remove(iranai)
+   for iranai in tree.xpath("//iframe"):
+      DB(1, 'remote 1 iframe!')
+      iranai.getparent().remove(iranai)
+   for iranai in tree.xpath("//div[@class='post-body entry-content']/div"):
+      DB(1, 'remote 1 div!')
+      iranai.getparent().remove(iranai)
+   etree.strip_tags(tree,'br')
+   myList = tree.xpath("//div[@class='post-body entry-content']")
+   global password
+   #passwordList = handler_password(myList)
+   for pas in passwordList:
+     print "Got password:"+pas
+     password.append(pas)
+   #if password == 'none':
+   #   print etree.tostring(tree.getroot(), pretty_print=True, method="html")
 
-    if resp.code == 200 :
-        data = resp.read()
-        resp.close()
-    parser = etree.HTMLParser()
-    tree = etree.parse(StringIO(data), parser)
-    #etree.strip_tags(tree,'br')
-    #etree.strip_tags(tree,'strong')
-    #etree.strip_tags(tree,'img')
-    etree.strip_tags(tree,'span')
-    #etree.strip_tags(tree,'iframe')
-    #etree.strip_tags(tree,'code')
-
-    result = etree.tostring(tree.getroot(), pretty_print=True, method="html")
-    #DB(1, result)
-    #DB(DB_VER, result)
-    passwordList = parseByRe(result)
-    videoPage = parseByRe2(result)
-    targetURL = ""
-    lineSum = 0
-    #myList = tree.xpath("//h3[@class='post-title entry-title']") #title
-    for iranai in tree.xpath("//div[@class='separator']"):
-        DB(1, 'remove 1 separator!')
-        iranai.getparent().remove(iranai)
-    for iranai in tree.xpath("//div[@class='sitemajiad']"):
-        DB(1, 'remove 1 stemajiad!')
-        iranai.getparent().remove(iranai)
-    for iranai in tree.xpath("//a[@name='more']"):
-        DB(1, 'remote 1 a more!')
-        iranai.getparent().remove(iranai)
-    for iranai in tree.xpath("//iframe"):
-        DB(1, 'remote 1 iframe!')
-        iranai.getparent().remove(iranai)
-    for iranai in tree.xpath("//div[@class='post-body entry-content']/div"):
-        DB(1, 'remote 1 div!')
-        iranai.getparent().remove(iranai)
-    etree.strip_tags(tree,'br')
-    myList = tree.xpath("//div[@class='post-body entry-content']")
-    global password
-    #passwordList = handler_password(myList)
-    for pas in passwordList:
-        print "Got password:"+pas
-        password.append(pas)
-    #if password == 'none':
-    #   print etree.tostring(tree.getroot(), pretty_print=True, method="html")
-
-    #aHrefList = tree.xpath("//div[@class='post-body entry-content']//a")
-    global TITLE
-    TITLE = 'none'
-    TITLE = tree.xpath("//title")[0].text
-    #handler_video(aHrefList)
-    #videoPage = handler_video(aHrefList)
-    for aPage in videoPage:
-        DB(1,"Got video http url:(%s)" %(aPage))
-        aPage = aPage.replace('embed','play',1)
-        aPage = aPage+"?html5=1" #enable html5
-        DB(1,"enable html5:(%s)"%(aPage))
-        ret.append(aPage)
-    return ret
+   #aHrefList = tree.xpath("//div[@class='post-body entry-content']//a")
+   global TITLE
+   TITLE = 'none'
+   TITLE = tree.xpath("//title")[0].text
+   #handler_video(aHrefList)
+   #videoPage = handler_video(aHrefList)
+   for aPage in videoPage:
+      DB(1,"Got video http url:(%s)" %(aPage))
+      aPage = aPage.replace('embed','play',1)
+      aPage = aPage+"?html5=1" #enable html5
+      DB(1,"enable html5:(%s)"%(aPage))
+      ret.append(aPage)
+   return ret
 
 def assignPageAndOverrideArgu():
    DB(DB_ARG,'ENTER overrideArgu')
@@ -233,7 +230,7 @@ def prepareXuite(mPage,PASSWORD,TITLE,outputPath):
 def main():
    cd = 3
    sourcePageList = blogspotParser(tPage)
-   while len(sourcePageList) == 0 and cd > 0:
+   while len(sourcePageList) == 0 and cd > 0: 
       print "ok, can't find any sourcePage, maybe we can retry "
       time.sleep(1)
       sourcePageList = blogspotParser(tPage)
@@ -266,7 +263,7 @@ def verify():
       print sys.argv[0]+" <PAGE> <outputPath> <DB>"
       print "--"
       print "you need to input <PAGE> <outputPath>"
-      print "DB is option"
+      print "DB is option"      
       exit()
    if len(sys.argv) == 4 :
       global DB_FLT
