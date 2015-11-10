@@ -11,9 +11,9 @@ function synoindex_update
 function travelNode
 {
 	mkdir -p $1
-	if [ -x $pythonPath ]; then
+	#if [ -x $pythonPath ]; then
 		$pythonPath ponyFetcherList.py $2 $1 0
-	fi
+	#fi
 }
 
 bkIFS=$IFS
