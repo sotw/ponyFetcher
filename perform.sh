@@ -1,4 +1,4 @@
-exePythonName=/volume1/archive/Common/Anime/ponyFetcher/ponyFetcherList.py
+exePythonName=./ponyFetcherList.py
 
 target=PewDiePie
 mkdir -p $target
